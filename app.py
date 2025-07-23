@@ -4,7 +4,7 @@ from detector import process_answer_sheet
 from scorer import score_answers
 import pandas as pd
 
-st.title("📄 Answer Sheet Scoring System (Multi-Answer Support)")
+st.title("📄 Answer Sheet Scoring System (Debug Mode)")
 
 # 1. Input answer key
 st.subheader("Step 1: Input Answer Key")
@@ -25,21 +25,29 @@ uploaded_pdf = st.file_uploader("Upload PDF file", type=["pdf"])
 
 # 3. Process and Score
 if uploaded_pdf and submitted and st.button("Process & Score"):
-    images = convert_pdf_to_images(uploaded_pdf)
-    results = []
+    try:
+        images = convert_pdf_to_images(uploaded_pdf)
+        st.success(f"✅ Detected {len(images)} page(s) in PDF.")
+        results = []
 
-    for i, img in enumerate(images):
-        student_id, answers = process_answer_sheet(img)
-        score, per_question = score_answers(answers, answer_key)
-        results.append({
-            "Student ID": student_id,
-            **per_question,
-            "Total Score": score
-        })
+        for i, img in enumerate(images):
+            st.write(f"🔍 Processing page {i+1}...")
+            student_id, answers = process_answer_sheet(img)
+            st.write(f"👤 Student ID: {student_id}")
+            st.write(f"✅ Answers (first 5): {dict(list(answers.items())[:5])}")
+            score, per_question = score_answers(answers, answer_key)
+            results.append({
+                "Student ID": student_id,
+                **per_question,
+                "Total Score": score
+            })
 
-    df = pd.DataFrame(results)
-    st.subheader("📊 Results")
-    st.dataframe(df)
+        df = pd.DataFrame(results)
+        st.subheader("📊 Results")
+        st.dataframe(df)
 
-    csv = df.to_csv(index=False).encode()
-    st.download_button("Download CSV", csv, "scores.csv", "text/csv")
+        csv = df.to_csv(index=False).encode()
+        st.download_button("Download CSV", csv, "scores.csv", "text/csv")
+
+    except Exception as e:
+        st.error(f"❌ An error occurred: {e}")
