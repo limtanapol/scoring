@@ -4,7 +4,7 @@ from detector import process_answer_sheet
 from scorer import score_answers
 import pandas as pd
 
-st.title("📄 Answer Sheet Scoring System")
+st.title("📄 Answer Sheet Scoring System (Multi-Answer Support)")
 
 # 1. Input answer key
 st.subheader("Step 1: Input Answer Key")
@@ -14,7 +14,7 @@ with st.form("answer_key_form"):
     cols = st.columns(6)
     for i in range(1, num_questions + 1):
         col = cols[(i - 1) % 6]
-        answer = col.selectbox(f"Q{i}", ["", "A", "B", "C", "D", "E"], key=f"q{i}")
+        answer = col.multiselect(f"Q{i}", ["A", "B", "C", "D", "E"], key=f"q{i}")
         if answer:
             answer_key[i] = answer
     submitted = st.form_submit_button("Submit Answer Key")
